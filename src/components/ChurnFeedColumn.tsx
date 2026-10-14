@@ -17,6 +17,8 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
   selectedGrievanceId,
   isGeneratingBattlecard,
 }) => {
+  const [filter, setFilter] = React.useState<"ALL" | "CRITICAL" | "PRICING" | "COMPLEXITY">("ALL");
+
   if (!grievances || grievances.length === 0) {
     return (
       <div className="p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 text-center flex flex-col items-center justify-center min-h-[400px]">
@@ -30,6 +32,17 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
       </div>
     );
   }
+
+  const criticalCount = grievances.filter((g) => g.churnIntent === "CRITICAL_CHURN").length;
+  const pricingCount = grievances.filter((g) => g.painPointCategory === "PRICING" || g.churnIntent === "FRUSTRATED_PRICING").length;
+  const complexityCount = grievances.filter((g) => g.painPointCategory === "COMPLEXITY" || (g.painPointCategory as any) === "DEVELOPER_EXPERIENCE").length;
+
+  const filteredGrievances = grievances.filter((g) => {
+    if (filter === "CRITICAL") return g.churnIntent === "CRITICAL_CHURN";
+    if (filter === "PRICING") return g.painPointCategory === "PRICING" || g.churnIntent === "FRUSTRATED_PRICING";
+    if (filter === "COMPLEXITY") return g.painPointCategory === "COMPLEXITY" || (g.painPointCategory as any) === "DEVELOPER_EXPERIENCE";
+    return true;
+  });
 
   const getIntentBadge = (intent: ChurnIntent) => {
     switch (intent) {
@@ -70,13 +83,60 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
         </div>
         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/60 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-          {grievances.length} Live Signals
+          {filteredGrievances.length} of {grievances.length} Signals
         </span>
+      </div>
+
+      {/* Interactive Urgency & Category Filter Pills */}
+      <div className="flex flex-wrap items-center gap-1.5 pb-0.5">
+        <button
+          onClick={() => setFilter("ALL")}
+          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+            filter === "ALL"
+              ? "bg-zinc-800 border-zinc-600 text-white font-bold"
+              : "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+          }`}
+        >
+          All Signals ({grievances.length})
+        </button>
+        <button
+          onClick={() => setFilter("CRITICAL")}
+          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border flex items-center gap-1.5 ${
+            filter === "CRITICAL"
+              ? "bg-rose-950 border-rose-600 text-rose-300 font-bold"
+              : "bg-zinc-900/60 border-zinc-800 text-rose-400/80 hover:text-rose-300"
+          }`}
+        >
+          <span>🔥 Immediate Churn</span>
+          <span className="px-1 py-0.2 rounded bg-rose-900/60 text-[10px] text-rose-300">{criticalCount}</span>
+        </button>
+        <button
+          onClick={() => setFilter("PRICING")}
+          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border flex items-center gap-1.5 ${
+            filter === "PRICING"
+              ? "bg-red-950 border-red-600 text-red-300 font-bold"
+              : "bg-zinc-900/60 border-zinc-800 text-red-400/80 hover:text-red-300"
+          }`}
+        >
+          <span>💸 Pricing Shock</span>
+          <span className="px-1 py-0.2 rounded bg-red-900/60 text-[10px] text-red-300">{pricingCount}</span>
+        </button>
+        <button
+          onClick={() => setFilter("COMPLEXITY")}
+          className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border flex items-center gap-1.5 ${
+            filter === "COMPLEXITY"
+              ? "bg-cyan-950 border-cyan-600 text-cyan-300 font-bold"
+              : "bg-zinc-900/60 border-zinc-800 text-cyan-400/80 hover:text-cyan-300"
+          }`}
+        >
+          <span>⚡ Complexity / DX</span>
+          <span className="px-1 py-0.2 rounded bg-cyan-900/60 text-[10px] text-cyan-300">{complexityCount}</span>
+        </button>
       </div>
 
       {/* Feed Cards */}
       <div className="space-y-3">
-        {grievances.map((grievance: Grievance) => {
+        {filteredGrievances.map((grievance: Grievance) => {
           const isSelected = selectedGrievanceId === grievance.id;
           const badge = getIntentBadge(grievance.churnIntent);
 
