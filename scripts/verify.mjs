@@ -44,7 +44,7 @@ async function runDiagnostics() {
     try {
       const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
       const t0 = Date.now();
-      const res = await tvly.search("MongoDB Vercel Tavily Hackathon", { maxResults: 1 });
+      const res = await tvly.search("real-time competitive intelligence", { maxResults: 1 });
       const elapsed = Date.now() - t0;
       console.log(`   🟢 CONNECTED - Live web search active (${elapsed}ms, ${res.results.length} result returned)`);
     } catch (err) {

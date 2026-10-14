@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Sponsor Integration Live Indicators */}
+        {/* Platform Infrastructure Live Indicators */}
         <div className="hidden lg:flex items-center gap-2.5 text-xs">
           {/* Vercel AI Gateway Status */}
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300">

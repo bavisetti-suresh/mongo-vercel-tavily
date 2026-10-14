@@ -92,7 +92,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, s
           </div>
 
           <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-900/30 text-zinc-300 text-[11px]">
-            💡 <strong>Hackathon Demo Note:</strong> All services are pre-warmed with resilient fallbacks, so live demonstrations never stall even if airport/venue Wi-Fi is congested or keys hit rate-limits.
+            💡 <strong>System Resilience Note:</strong> RadarStrike features zero-downtime in-memory buffers and edge failover circuits, ensuring the platform remains fully responsive even during network latency spikes or provider rate limits.
           </div>
         </div>
 

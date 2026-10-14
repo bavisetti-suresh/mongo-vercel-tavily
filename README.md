@@ -1,40 +1,39 @@
 # ⚡ RadarStrike
 ### *Autonomous Competitor Intelligence & Real-Time Churn Capture Engine*
-Built for the **Buildathon w/ MongoDB & Vercel & Tavily** (London, 2026).
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fbavisetti-suresh%2Fmongo-vercel-tavily&env=AI_GATEWAY_API_KEY,AI_GATEWAY_URL,TAVILY_API_KEY,MONGODB_URI,MONGODB_DB&project-name=radarstrike&repository-name=radarstrike)
 
 ---
 
-## 🏆 The 10-Second Elevator Pitch
+## 🏆 The 10-Second Pitch
 When competitors hike prices, deprecate features, or hit unexpected downtime, their users complain publicly on Reddit, X, and forums. **RadarStrike** combines real-time factual web intelligence, semantic vector search, and dynamic AI model routing to continuously monitor competitive surfaces, detect buyer churn intent in real time, and generate high-converting, non-spammy counter-attack battlecards and empathetic migration outreach.
 
 ---
 
-## 🧑‍⚖️ For Judges: 60-Second Quick Start & Evaluation Guide
+## ⚡ Quick Start & Interactive Evaluation Guide
 
-You can evaluate RadarStrike using either of two paths:
+RadarStrike supports two evaluation paths:
 
-### 🌟 Path A: Zero-Config Sandbox (Instant Evaluation — No Keys Required!)
+### 🌟 Path A: Zero-Config Sandbox (Instant Run — No Keys Required)
 RadarStrike includes a **built-in resilient sandbox** with real-world pre-warmed datasets and an in-memory vector similarity engine. You can clone and run it immediately without needing to configure or fund any API keys:
 
 ```bash
 # 1. Clone & Install
-git clone https://github.com/your-username/mongo-vercel-tavily.git
+git clone https://github.com/bavisetti-suresh/mongo-vercel-tavily.git
 cd mongo-vercel-tavily
 npm install
 
-# 2. Run Diagnostic
+# 2. Run Diagnostics
 npm run verify
 
 # 3. Start Development Server
 npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)**. All UI cards, 1-click presets, threat gauges, vector matches, and slide-over battlecards are 100% functional out of the box!
+Open **[http://localhost:3000](http://localhost:3000)**. All UI cards, 1-click intelligence presets, threat gauges, vector matches, and slide-over battlecards are 100% functional out of the box.
 
 ---
 
-### 🚀 Path B: 100% Live Mode (With Your Sponsor Credentials)
+### 🚀 Path B: 100% Live Mode (Connecting Platform Credentials)
 If you would like to run live web crawling, write live documents to MongoDB Atlas, and stream directly through Vercel AI Gateway:
 
 1. Create a `.env.local` file in the project root:
@@ -45,21 +44,18 @@ cp .env.example .env.local
 2. Add your credentials:
 ```env
 # Vercel AI Gateway (All LLM Routing & Failovers)
-# Obtain from Vercel Dashboard -> AI Gateway or via `vercel ai-gateway`
 AI_GATEWAY_API_KEY=your_vercel_ai_gateway_key
 AI_GATEWAY_URL=https://ai-gateway.vercel.sh/v1
 
 # Tavily AI Search (Live Factual Web Intelligence)
-# Obtain from https://tavily.com
 TAVILY_API_KEY=tvly-your_key
 
 # MongoDB Atlas (Persistent Storage & Vector Search)
-# Obtain from MongoDB Atlas -> Cluster -> Connect -> Drivers
 MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
 MONGODB_DB=radarstrike
 ```
 
-3. Run the automated diagnostic tool to verify all 3 services connect:
+3. Run the automated diagnostic tool to verify all services connect:
 ```bash
 npm run verify
 ```
@@ -90,11 +86,11 @@ npm run dev
 
 ---
 
-## 🧪 Interactive Testing Walkthrough for Judges
+## 🧪 Interactive Testing Walkthrough
 
-Once the app is open at **[http://localhost:3000](http://localhost:3000)**, follow these steps to test every layer of the system:
+Once the app is open at **[http://localhost:3000](http://localhost:3000)**, explore the following capabilities:
 
-### 1. Test 1-Click Hackathon Presets (Command Bar)
+### 1. Test 1-Click Intelligence Presets (Command Bar)
 * Click **Resend vs SendGrid** (Email Infrastructure)
 * Click **Supabase vs Firebase** (Database & Auth)
 * Click **PostHog vs Mixpanel** (Product Analytics)
@@ -117,7 +113,7 @@ Once the app is open at **[http://localhost:3000](http://localhost:3000)**, foll
 * **Tab 2 — Authentic Migration Offer:** Review the empathetic, technical, non-spammy outreach message with a 1-click **"Copy Message"** button ready to paste onto Reddit or DM to the prospect.
 * **Telemetry Bar:** Notice the active model identifier (routed through Vercel AI Gateway), latency in milliseconds, and Edge Cache status.
 
-### 5. Test Dynamic Model Switching & Circuit Breaker
+### 5. Dynamic Model Switching & Circuit Breaker
 * In the top navbar, use the **Model Selector** dropdown to switch between:
   * `⚡ Hybrid Auto-Route (Vercel Gateway)`
   * `OpenAI GPT-4o (Deep Strategy)`
@@ -127,9 +123,9 @@ Once the app is open at **[http://localhost:3000](http://localhost:3000)**, foll
 
 ---
 
-## 🛠️ Sponsor Architecture Deep-Dive
+## 🛠️ System Architecture & Technology Stack
 
-| Sponsor Tech | Role in RadarStrike | Implementation Details |
+| Platform Layer | Role in RadarStrike | Implementation Details |
 | :--- | :--- | :--- |
 | **Vercel AI Gateway & AI SDK** | Intelligent LLM Control Plane | Integrated using official Vercel AI Gateway specs (`https://ai-gateway.vercel.sh/v1` via `@ai-sdk/openai`). Enforces model routing, circuit-breaker failovers, and live telemetry tracking (latency, tokens, cache hits). |
 | **MongoDB Atlas** | Persistent Memory & Vector Search | Stores competitor profiles, scan history, solution knowledge bases, and churn leads in collections: `competitor_scans`, `grievances`, and `battlecards`. Performs **Atlas Vector Search** (`$vectorSearch` aggregation pipeline with in-memory cosine fallback). |
@@ -142,7 +138,7 @@ Once the app is open at **[http://localhost:3000](http://localhost:3000)**, foll
 
 ```
 ├── scripts/
-│   └── verify.mjs               # CLI diagnostic tool to verify all sponsor connections
+│   └── verify.mjs               # CLI diagnostic tool to verify all platform connections
 ├── src/
 │   ├── app/
 │   │   ├── api/
@@ -156,7 +152,7 @@ Once the app is open at **[http://localhost:3000](http://localhost:3000)**, foll
 │   │   ├── BattlecardDrawer.tsx # Slide-over battlecard & 1-click outreach message generator
 │   │   ├── ChurnFeedColumn.tsx  # Live grievance stream with Atlas vector match pills
 │   │   ├── CommandBar.tsx       # 1-click demo presets & custom scan search bar
-│   │   ├── Navbar.tsx           # Sponsor status badges, model selector & latency meter
+│   │   ├── Navbar.tsx           # Platform status badges, model selector & latency meter
 │   │   ├── SettingsModal.tsx    # System architecture & key configuration modal
 │   │   └── ThreatRadarColumn.tsx# Competitor vulnerability index, moves & stealth radar
 │   └── lib/
