@@ -1,8 +1,6 @@
 # ⚡ RadarStrike
 ### *Autonomous Competitor Intelligence & Real-Time Churn Capture Engine*
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fbavisetti-suresh%2Fmongo-vercel-tavily&env=AI_GATEWAY_API_KEY,AI_GATEWAY_URL,TAVILY_API_KEY,MONGODB_URI,MONGODB_DB&project-name=radarstrike&repository-name=radarstrike)
-
 ---
 
 ## 🤖 The Autonomous Multi-Agent ReAct Architecture
