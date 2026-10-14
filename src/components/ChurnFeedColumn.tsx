@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MessageSquareWarning, Flame, AlertCircle, ExternalLink, Sparkles, Check, ArrowUpRight, Crosshair } from "lucide-react";
+import { MessageSquareWarning, Flame, AlertCircle, ExternalLink, Sparkles, Check, ArrowUpRight, Crosshair, DollarSign, Loader2 } from "lucide-react";
 import { Grievance, ChurnIntent } from "@/lib/db/schema";
 
 interface ChurnFeedColumnProps {
@@ -9,6 +9,8 @@ interface ChurnFeedColumnProps {
   onSelectGrievance: (grievance: Grievance) => void;
   selectedGrievanceId?: string;
   isGeneratingBattlecard?: boolean;
+  onDeepMine?: () => void;
+  isDeepMining?: boolean;
 }
 
 export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
@@ -16,6 +18,8 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
   onSelectGrievance,
   selectedGrievanceId,
   isGeneratingBattlecard,
+  onDeepMine,
+  isDeepMining,
 }) => {
   const [filter, setFilter] = React.useState<"ALL" | "CRITICAL" | "PRICING" | "COMPLEXITY">("ALL");
 
@@ -32,6 +36,11 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
       </div>
     );
   }
+
+  const totalArr = grievances.reduce((acc, g) => {
+    const base = g.churnIntent === "CRITICAL_CHURN" ? 24000 : g.churnIntent === "FRUSTRATED_PRICING" ? 18000 : 12000;
+    return acc + base;
+  }, 0);
 
   const criticalCount = grievances.filter((g) => g.churnIntent === "CRITICAL_CHURN").length;
   const pricingCount = grievances.filter((g) => g.painPointCategory === "PRICING" || g.churnIntent === "FRUSTRATED_PRICING").length;
@@ -84,6 +93,19 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
         <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/60 flex items-center gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
           {filteredGrievances.length} of {grievances.length} Signals
+        </span>
+      </div>
+
+      {/* Financial Pipeline In Play Opportunity Banner */}
+      <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-950/40 via-zinc-900/60 to-cyan-950/40 border border-emerald-900/40 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs text-zinc-300 font-mono">
+            Pipeline in Play: <strong className="text-emerald-400 font-bold text-sm">${totalArr.toLocaleString()} ARR</strong>
+          </span>
+        </div>
+        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-800/80 text-emerald-300 font-semibold tracking-wider">
+          Active Conversion Window
         </span>
       </div>
 
@@ -225,6 +247,27 @@ export const ChurnFeedColumn: React.FC<ChurnFeedColumnProps> = ({
           );
         })}
       </div>
+
+      {/* Deep Mine More Button */}
+      {onDeepMine && (
+        <button
+          onClick={onDeepMine}
+          disabled={isDeepMining}
+          className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-xs font-mono text-zinc-300 hover:text-white flex items-center justify-center gap-2 transition-all shadow-sm disabled:opacity-50"
+        >
+          {isDeepMining ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+              <span>Mining Next Wave Across Forums & Communities...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Deep Mine Next Wave (+10 Churn Opportunities)</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 };

@@ -5,7 +5,15 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userProduct, competitor, directive, solutions, selectedModel } = await req.json();
+    const {
+      userProduct,
+      competitor,
+      directive,
+      scanDepth = 15,
+      platforms = ["reddit", "hackernews", "x", "github"],
+      solutions,
+      selectedModel,
+    } = await req.json();
 
     if (!userProduct || !competitor) {
       return new Response(
@@ -30,6 +38,8 @@ export async function POST(req: NextRequest) {
           userProduct,
           competitor,
           directive,
+          scanDepth,
+          platforms,
           solutions,
           selectedModel,
           onEvent: async (ev) => {

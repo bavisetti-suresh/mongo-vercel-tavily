@@ -32,11 +32,15 @@ export async function executeTavilyIntelligenceScan({
   competitor,
   customReconQuery,
   customChurnQuery,
+  maxResults = 15,
+  platforms = ["reddit", "hackernews", "x", "github"],
 }: {
   userProduct: string;
   competitor: string;
   customReconQuery?: string;
   customChurnQuery?: string;
+  maxResults?: number;
+  platforms?: string[];
 }): Promise<TavilyScanResult> {
   const client = getTavilyClient();
 
@@ -45,20 +49,30 @@ export async function executeTavilyIntelligenceScan({
     return getFallbackIntelligence(userProduct, competitor);
   }
 
+  const platformSites: Record<string, string> = {
+    reddit: "site:reddit.com",
+    hackernews: "site:news.ycombinator.com",
+    x: "site:x.com OR site:twitter.com",
+    github: "site:github.com",
+    devto: "site:dev.to",
+  };
+  const activeSites = platforms.map((p) => platformSites[p] || `site:${p}`).join(" OR ");
+  const siteFilter = activeSites ? `(${activeSites})` : `(site:reddit.com OR site:news.ycombinator.com)`;
+
   const reconQuery = customReconQuery || `${competitor} pricing change changelog deprecation 2025 OR 2026`;
-  const churnQuery = customChurnQuery || `site:reddit.com OR site:news.ycombinator.com "${competitor}" ("migrating" OR "switching to" OR "alternative to" OR "expensive" OR "pricing is crazy" OR "suspended")`;
+  const churnQuery = customChurnQuery || `${siteFilter} "${competitor}" ("migrating" OR "switching to" OR "alternative to" OR "expensive" OR "pricing is crazy" OR "suspended" OR "broken" OR "leaving")`;
 
   try {
-    // Parallel Tavily searches: 1. Competitor moves/pricing, 2. Churn grievances on Reddit/dev forums
+    // Parallel Tavily searches: 1. Competitor moves/pricing, 2. Churn grievances on specified platforms
     const [threatsResponse, grievancesResponse] = await Promise.all([
       client.search(reconQuery, {
         searchDepth: "advanced",
-        maxResults: 4,
+        maxResults: 6,
         topic: "news",
       }),
       client.search(churnQuery, {
         searchDepth: "advanced",
-        maxResults: 5,
+        maxResults: Math.min(Math.max(maxResults, 5), 30),
       }),
     ]);
 
@@ -205,6 +219,48 @@ function getFallbackIntelligence(userProduct: string, competitor: string): Tavil
           churnIntent: "HIGH_INTENT",
           sentimentScore: -0.85,
           publishedDate: "1 week ago",
+        },
+        {
+          id: "g-ddb-4",
+          competitor: "DynamoDB",
+          userProduct: userProduct || "MongoDB Atlas",
+          sourceUrl: "https://reddit.com/r/aws/comments/dynamodb_gsi_throttle/",
+          sourcePlatform: "reddit",
+          author: "u/infra_director",
+          title: "DynamoDB GSI throttle cascades to primary table writes during traffic burst",
+          quote: "If a single GSI gets throttled in DynamoDB, it throttles the entire base table. We suffered a 45-minute checkout outage during traffic peaks because of AWS partition key hot spots. Moving to MongoDB Atlas with flexible shard keys.",
+          painPointCategory: "RELIABILITY",
+          churnIntent: "CRITICAL_CHURN",
+          sentimentScore: -0.98,
+          publishedDate: "3 days ago",
+        },
+        {
+          id: "g-ddb-5",
+          competitor: "DynamoDB",
+          userProduct: userProduct || "MongoDB Atlas",
+          sourceUrl: "https://news.ycombinator.com/item?id=3918204",
+          sourcePlatform: "hackernews",
+          author: "devops_marcus",
+          title: "Lack of multi-document ACID transactions in DynamoDB creates dirty state",
+          quote: "Writing custom distributed 2-phase commit logic across multiple DynamoDB tables is pure pain. MongoDB Atlas has had native multi-document ACID transactions for years. We are eliminating 2,000 lines of custom rollback logic.",
+          painPointCategory: "COMPLEXITY",
+          churnIntent: "HIGH_INTENT",
+          sentimentScore: -0.89,
+          publishedDate: "5 days ago",
+        },
+        {
+          id: "g-ddb-6",
+          competitor: "DynamoDB",
+          userProduct: userProduct || "MongoDB Atlas",
+          sourceUrl: "https://twitter.com/startup_cto/status/1792341",
+          sourcePlatform: "x",
+          author: "@startup_cto",
+          title: "Tired of paying for Pinecone on top of DynamoDB for AI agents",
+          quote: "Why are we running DynamoDB for operational user accounts and syncing to Pinecone for embeddings? We are consolidating our entire database layer to MongoDB Atlas with native Vector Search. One less SaaS invoice to pay.",
+          painPointCategory: "PRICING",
+          churnIntent: "HIGH_INTENT",
+          sentimentScore: -0.86,
+          publishedDate: "6 days ago",
         },
       ],
       threatScores: {

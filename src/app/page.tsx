@@ -24,6 +24,9 @@ export default function Home() {
   const [competitor, setCompetitor] = useState("DynamoDB");
   const [activePresetId, setActivePresetId] = useState<string>("mongodb-dynamodb");
   const [directive, setDirective] = useState<string>("");
+  const [scanDepth, setScanDepth] = useState<number>(15);
+  const [platforms, setPlatforms] = useState<string[]>(["reddit", "hackernews", "x", "github"]);
+  const [isDeepMining, setIsDeepMining] = useState(false);
 
   // Agent execution pipeline state
   const [isLoading, setIsLoading] = useState(false);
@@ -112,6 +115,8 @@ export default function Home() {
           userProduct: targetProduct,
           competitor: targetCompetitor,
           directive: targetDirective,
+          scanDepth,
+          platforms,
           solutions: customSolutions,
           selectedModel,
         }),
@@ -183,6 +188,34 @@ export default function Home() {
     }
   };
 
+  const handleDeepMine = async () => {
+    setIsDeepMining(true);
+    try {
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userProduct,
+          competitor,
+          directive: directive || "frustrated looking for alternatives",
+          scanDepth: 30,
+          platforms,
+          selectedModel,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.grievances) {
+        const existingIds = new Set(grievances.map((g) => g.id));
+        const newOnes = data.grievances.filter((g: Grievance) => !existingIds.has(g.id));
+        setGrievances((prev) => [...prev, ...newOnes]);
+      }
+    } catch (err) {
+      console.error("Deep mine error:", err);
+    } finally {
+      setIsDeepMining(false);
+    }
+  };
+
   const handleSelectGrievance = async (
     grievance: Grievance,
     prod = userProduct,
@@ -245,6 +278,10 @@ export default function Home() {
         }}
         directive={directive}
         setDirective={setDirective}
+        scanDepth={scanDepth}
+        setScanDepth={setScanDepth}
+        platforms={platforms}
+        setPlatforms={setPlatforms}
         onLaunchScan={() => handleLaunchScan()}
         isLoading={isLoading}
         onSelectPreset={handleSelectPreset}
@@ -278,6 +315,8 @@ export default function Home() {
               onSelectGrievance={(g) => handleSelectGrievance(g)}
               selectedGrievanceId={selectedGrievance?.id}
               isGeneratingBattlecard={isGeneratingBattlecard}
+              onDeepMine={handleDeepMine}
+              isDeepMining={isDeepMining}
             />
           </div>
         </div>

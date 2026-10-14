@@ -11,6 +11,10 @@ interface CommandBarProps {
   setCompetitor: (val: string) => void;
   directive: string;
   setDirective: (val: string) => void;
+  scanDepth: number;
+  setScanDepth: (val: number) => void;
+  platforms: string[];
+  setPlatforms: (val: string[]) => void;
   onLaunchScan: () => void;
   isLoading: boolean;
   onSelectPreset: (preset: DemoPreset) => void;
@@ -25,6 +29,10 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   setCompetitor,
   directive,
   setDirective,
+  scanDepth,
+  setScanDepth,
+  platforms,
+  setPlatforms,
   onLaunchScan,
   isLoading,
   onSelectPreset,
@@ -186,6 +194,71 @@ export const CommandBar: React.FC<CommandBarProps> = ({
                 Clear prompt
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Mining Depth & Platform Coverage Controls */}
+        <div className="mt-3 pt-2.5 border-t border-zinc-800/60 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+          {/* Depth Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500 text-[11px] uppercase tracking-wider">Mining Depth:</span>
+            <div className="flex items-center gap-1 bg-zinc-950 p-0.5 rounded-lg border border-zinc-800">
+              {[
+                { label: "5 Leads (Fast)", val: 5 },
+                { label: "15 Leads (Deep)", val: 15 },
+                { label: "30 Leads (Exhaustive)", val: 30 },
+              ].map((tier) => (
+                <button
+                  key={tier.val}
+                  type="button"
+                  onClick={() => setScanDepth(tier.val)}
+                  disabled={isLoading}
+                  className={`px-2 py-1 rounded text-[11px] transition-all ${
+                    scanDepth === tier.val
+                      ? "bg-cyan-950 text-cyan-300 font-bold border border-cyan-700/60 shadow-sm"
+                      : "text-zinc-400 hover:text-zinc-200"
+                  }`}
+                >
+                  {tier.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Platform Toggles */}
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-500 text-[11px] uppercase tracking-wider">Target Sources:</span>
+            <div className="flex items-center gap-1">
+              {[
+                { id: "reddit", label: "Reddit" },
+                { id: "hackernews", label: "Hacker News" },
+                { id: "x", label: "Twitter / X" },
+                { id: "github", label: "GitHub" },
+              ].map((p) => {
+                const isSelected = platforms.includes(p.id);
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        if (platforms.length > 1) setPlatforms(platforms.filter((x) => x !== p.id));
+                      } else {
+                        setPlatforms([...platforms, p.id]);
+                      }
+                    }}
+                    disabled={isLoading}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all border ${
+                      isSelected
+                        ? "bg-zinc-800 border-zinc-600 text-zinc-200 font-medium"
+                        : "bg-zinc-950/60 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

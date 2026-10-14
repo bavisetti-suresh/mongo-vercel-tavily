@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
       userProduct = "Resend",
       competitor = "SendGrid",
       directive,
+      scanDepth = 15,
+      platforms = ["reddit", "hackernews", "x", "github"],
       solutions: customSolutions,
       selectedModel = "hybrid",
     } = body;
@@ -57,6 +59,8 @@ export async function POST(req: NextRequest) {
       competitor,
       customReconQuery: directive ? `${competitor} ${directive}` : undefined,
       customChurnQuery: directive ? `site:reddit.com OR site:news.ycombinator.com "${competitor}" ${directive}` : undefined,
+      maxResults: scanDepth,
+      platforms,
     });
 
     // Step 2: Semantic Vector Pairing — match each customer complaint to the best solution

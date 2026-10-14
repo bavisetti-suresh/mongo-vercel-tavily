@@ -28,6 +28,8 @@ export async function runAutonomousStrikePipeline({
   userProduct,
   competitor,
   directive,
+  scanDepth = 15,
+  platforms = ["reddit", "hackernews", "x", "github"],
   solutions: customSolutions,
   selectedModel = "hybrid",
   onEvent,
@@ -35,6 +37,8 @@ export async function runAutonomousStrikePipeline({
   userProduct: string;
   competitor: string;
   directive?: string;
+  scanDepth?: number;
+  platforms?: string[];
   solutions?: SolutionItem[];
   selectedModel?: any;
   onEvent: AgentEventCallback;
@@ -136,6 +140,8 @@ Return ONLY a valid JSON object:
     competitor,
     customReconQuery: reconQuery,
     customChurnQuery: churnQuery,
+    maxResults: scanDepth,
+    platforms,
   });
 
   const { moves, stealthEntrants, threatScores, isLiveTavily } = scanResult;
