@@ -7,10 +7,11 @@ import { ThreatRadarColumn } from "@/components/ThreatRadarColumn";
 import { ChurnFeedColumn } from "@/components/ChurnFeedColumn";
 import { BattlecardDrawer } from "@/components/BattlecardDrawer";
 import { SettingsModal } from "@/components/SettingsModal";
+import { AgentActivityTerminal } from "@/components/AgentActivityTerminal";
 import { DEMO_PRESETS, DemoPreset } from "@/lib/services/presets";
 import { CompetitorScan, Grievance, Battlecard, SystemStatus } from "@/lib/db/schema";
 import { SupportedModel } from "@/lib/services/ai-gateway";
-import { ShieldCheck, Crosshair, Sparkles } from "lucide-react";
+import { AgentEvent } from "@/lib/services/agent";
 
 export default function Home() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -22,9 +23,12 @@ export default function Home() {
   const [competitor, setCompetitor] = useState("SendGrid");
   const [activePresetId, setActivePresetId] = useState<string>("resend-sendgrid");
 
-  // Pipeline state
+  // Agent execution pipeline state
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>("");
+  const [agentEvents, setAgentEvents] = useState<AgentEvent[]>([]);
+  const [activeAgent, setActiveAgent] = useState<string>("Recon Scout");
+
   const [scan, setScan] = useState<CompetitorScan | null>(null);
   const [grievances, setGrievances] = useState<Grievance[]>([]);
 
@@ -59,18 +63,12 @@ export default function Home() {
     customSolutions?: any[]
   ) => {
     setIsLoading(true);
-    setLoadingStep("Deploying Tavily AI web crawlers to scan recent changelogs...");
+    setLoadingStep("Deploying Autonomous Multi-Agent Loop...");
+    setAgentEvents([]);
 
     try {
-      const stepTimer1 = setTimeout(() => {
-        setLoadingStep("Hunting Reddit & dev forums for live churn & grievance discussions...");
-      }, 700);
-
-      const stepTimer2 = setTimeout(() => {
-        setLoadingStep("Matching complaints to solutions via MongoDB Atlas Vector Search...");
-      }, 1400);
-
-      const res = await fetch("/api/scan", {
+      // Stream agent thoughts and tool calls via Server-Sent Events (SSE)
+      const res = await fetch("/api/agent/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -81,21 +79,65 @@ export default function Home() {
         }),
       });
 
-      clearTimeout(stepTimer1);
-      clearTimeout(stepTimer2);
+      if (!res.ok || !res.body) {
+        throw new Error("Streaming agent pipeline failed to start");
+      }
 
-      const data = await res.json();
-      if (data.success) {
-        setScan(data.scan);
-        setGrievances(data.grievances);
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-        // Pre-select first grievance for immediate preview
-        if (data.grievances.length > 0 && !selectedGrievance) {
-          handleSelectGrievance(data.grievances[0], targetProduct, targetCompetitor);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const blocks = buffer.split("\n\n");
+        buffer = blocks.pop() || "";
+
+        for (const block of blocks) {
+          const trimmed = block.trim();
+          if (trimmed.startsWith("data: ")) {
+            try {
+              const event: AgentEvent = JSON.parse(trimmed.slice(6));
+              setAgentEvents((prev) => [...prev, event]);
+              setActiveAgent(event.agentName);
+              setLoadingStep(`[${event.agentName}] ${event.message.slice(0, 70)}...`);
+
+              if (event.type === "scan_complete" && event.metadata?.scan) {
+                setScan(event.metadata.scan);
+              }
+
+              if (event.type === "grievances_found" && event.metadata?.grievances) {
+                setGrievances(event.metadata.grievances);
+                if (event.metadata.grievances.length > 0) {
+                  handleSelectGrievance(event.metadata.grievances[0], targetProduct, targetCompetitor);
+                }
+              }
+            } catch (parseErr) {
+              console.warn("Error parsing stream chunk:", parseErr);
+            }
+          }
         }
       }
     } catch (err) {
-      console.error("Scan failed:", err);
+      console.error("Agent stream failed, falling back to batch scan:", err);
+      // Fallback to batch /api/scan if stream was interrupted
+      const fallbackRes = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userProduct: targetProduct,
+          competitor: targetCompetitor,
+          solutions: customSolutions,
+          selectedModel,
+        }),
+      });
+      const data = await fallbackRes.json();
+      if (data.success) {
+        setScan(data.scan);
+        setGrievances(data.grievances);
+      }
     } finally {
       setIsLoading(false);
       setLoadingStep("");
@@ -167,6 +209,13 @@ export default function Home() {
         onSelectPreset={handleSelectPreset}
         activePresetId={activePresetId}
         loadingStep={loadingStep}
+      />
+
+      {/* Autonomous Agent Execution Trace Terminal */}
+      <AgentActivityTerminal
+        events={agentEvents}
+        isStreaming={isLoading}
+        activeAgent={activeAgent}
       />
 
       {/* Main Mission Control Grid */}

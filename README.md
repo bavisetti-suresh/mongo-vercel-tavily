@@ -5,6 +5,47 @@
 
 ---
 
+## 🤖 The Autonomous Multi-Agent ReAct Architecture
+
+Unlike static pipelines that run sequential API scripts, RadarStrike operates as an **autonomous multi-agent reasoning loop** (ReAct: Think ➔ Act ➔ Observe ➔ Decide), streaming its thoughts and tool invocations live to the UI via Server-Sent Events (SSE):
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. RECON SCOUT AGENT                                                   │
+│    🤔 Thought: "Investigating target competitor changelogs & pricing"  │
+│    🛠️ Tool: tavily_search("{competitor} updates news 2025-2026")       │
+│    👁️ Observe: Discovered price restructuring & account suspension wave│
+│    🎯 Decision: Isolate vulnerability: [account bans & latency]        │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Hands off vulnerability vector
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 2. CHURN HUNTER AGENT                                                  │
+│    🤔 Thought: "Formulating deep search for affected users on forums"   │
+│    🛠️ Tool: tavily_search("site:reddit.com {competitor} (account|ban)") │
+│    👁️ Observe: Extracted 5 high-churn buyer discussions               │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Passes qualified grievances
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 3. VECTOR MATCHER AGENT (MongoDB Atlas)                                │
+│    🤔 Thought: "Pairing complaints against {userProduct} differentiators│
+│    🛠️ Tool: mongodb_vector_search(quote_embedding)                     │
+│    👁️ Observe: Matched 'Instant Onboarding' at 90% confidence          │
+│    💾 Action: Persists scan documents to MongoDB Atlas cluster         │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│ 4. STRIKE STRATEGIST AGENT (Vercel AI Gateway)                         │
+│    🤔 Thought: "Synthesizing internal counter-strategy & outreach"    │
+│    🛠️ Tool: ai_gateway_route(model: "openai/gpt-4o")                  │
+│    🎯 Output: Generates Internal Battlecard + Empathetic Outreach      │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🏆 The 10-Second Pitch
 When competitors hike prices, deprecate features, or hit unexpected downtime, their users complain publicly on Reddit, X, and forums. **RadarStrike** combines real-time factual web intelligence, semantic vector search, and dynamic AI model routing to continuously monitor competitive surfaces, detect buyer churn intent in real time, and generate high-converting, non-spammy counter-attack battlecards and empathetic migration outreach.
 
