@@ -58,8 +58,8 @@ RadarStrike includes a **built-in resilient sandbox** with real-world pre-warmed
 
 ```bash
 # 1. Clone & Install
-git clone https://github.com/bavisetti-suresh/mongo-vercel-tavily.git
-cd mongo-vercel-tavily
+git clone https://github.com/getinsurednow-ai/radarstrike.git
+cd radarstrike
 npm install
 
 # 2. Run Diagnostics
