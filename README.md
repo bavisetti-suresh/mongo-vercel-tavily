@@ -1,6 +1,8 @@
 # ⚡ RadarStrike
 ### *Autonomous Competitor Intelligence & Real-Time Churn Capture Engine*
 
+🌐 **Live Application:** [https://radarstrike.vercel.app/](https://radarstrike.vercel.app/)
+
 ---
 
 ## 🤖 The Autonomous Multi-Agent ReAct Architecture
@@ -51,7 +53,15 @@ When competitors hike prices, deprecate features, or hit unexpected downtime, th
 
 ## ⚡ Quick Start & Interactive Evaluation Guide
 
-RadarStrike supports two evaluation paths:
+### 🌐 Try the Live Deployment (No Installation Required)
+Launch the platform directly in your browser:  
+👉 **[https://radarstrike.vercel.app/](https://radarstrike.vercel.app/)**
+
+---
+
+### 💻 Running Locally
+
+RadarStrike supports two evaluation paths for local testing:
 
 ### 🌟 Path A: Zero-Config Sandbox (Instant Run — No Keys Required)
 RadarStrike includes a **built-in resilient sandbox** with real-world pre-warmed datasets and an in-memory vector similarity engine. You can clone and run it immediately without needing to configure or fund any API keys:
