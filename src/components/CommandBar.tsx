@@ -67,64 +67,68 @@ export const CommandBar: React.FC<CommandBarProps> = ({
             e.preventDefault();
             if (!isLoading) onLaunchScan();
           }}
-          className="flex flex-col md:flex-row items-center gap-3"
+          className="flex flex-col md:flex-row items-stretch md:items-end gap-3"
         >
           {/* Your Product Input */}
-          <div className="relative w-full md:w-1/2">
-            <span className="absolute -top-2.5 left-3 px-1.5 bg-zinc-900 text-[10px] font-mono uppercase text-cyan-400 font-semibold tracking-wider">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-[11px] font-mono uppercase text-cyan-400 font-semibold tracking-wider flex items-center gap-1.5 pl-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
               Your Product / Startup
-            </span>
+            </label>
             <div className="relative flex items-center">
               <input
                 type="text"
                 value={userProduct}
                 onChange={(e) => setUserProduct(e.target.value)}
-                placeholder="e.g. Resend, Supabase, PostHog..."
-                className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all"
+                placeholder="e.g. MongoDB Atlas, Vercel, Tavily..."
+                className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm font-medium text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all h-[44px]"
                 disabled={isLoading}
               />
             </div>
           </div>
 
-          <div className="hidden md:flex items-center justify-center text-zinc-600">
+          <div className="hidden md:flex items-center justify-center text-zinc-600 pb-2.5">
             <Crosshair className="w-5 h-5 text-rose-500/80 animate-pulse" />
           </div>
 
           {/* Target Competitor Input */}
-          <div className="relative w-full md:w-1/2">
-            <span className="absolute -top-2.5 left-3 px-1.5 bg-zinc-900 text-[10px] font-mono uppercase text-rose-400 font-semibold tracking-wider">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-[11px] font-mono uppercase text-rose-400 font-semibold tracking-wider flex items-center gap-1.5 pl-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
               Target Competitor to Snatch From
-            </span>
+            </label>
             <div className="relative flex items-center">
               <input
                 type="text"
                 value={competitor}
                 onChange={(e) => setCompetitor(e.target.value)}
-                placeholder="e.g. SendGrid, Firebase, Mixpanel..."
-                className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-4 py-3 text-sm font-medium text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all"
+                placeholder="e.g. DynamoDB, AWS Amplify, Perplexity API..."
+                className="w-full bg-zinc-950 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm font-medium text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all h-[44px]"
                 disabled={isLoading}
               />
             </div>
           </div>
 
           {/* Action Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !userProduct.trim() || !competitor.trim()}
-            className="w-full md:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>Scanning Radar...</span>
-              </>
-            ) : (
-              <>
-                <span>Launch Strike</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
+          <div className="flex flex-col justify-end">
+            <button
+              type="submit"
+              disabled={isLoading || !userProduct.trim() || !competitor.trim()}
+              className="w-full md:w-auto px-6 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm shadow-[0_0_20px_rgba(6,182,212,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 h-[44px]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Scanning Radar...</span>
+                </>
+              ) : (
+                <>
+                  <span>Launch Strike</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
         </form>
 
         {/* Live Loading Step Progress */}

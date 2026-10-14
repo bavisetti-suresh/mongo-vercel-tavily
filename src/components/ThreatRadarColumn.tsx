@@ -1,15 +1,16 @@
 "use client";
 
 import React from "react";
-import { ShieldAlert, AlertTriangle, ExternalLink, Zap, TrendingUp, Layers, Eye } from "lucide-react";
+import { ShieldAlert, AlertTriangle, ExternalLink, Zap, TrendingUp, Layers, Eye, Swords } from "lucide-react";
 import { CompetitorScan, CompetitorMove, StealthCompetitor } from "@/lib/db/schema";
 
 interface ThreatRadarColumnProps {
   scan: CompetitorScan | null;
   competitorName: string;
+  onOpenMatrix?: () => void;
 }
 
-export const ThreatRadarColumn: React.FC<ThreatRadarColumnProps> = ({ scan, competitorName }) => {
+export const ThreatRadarColumn: React.FC<ThreatRadarColumnProps> = ({ scan, competitorName, onOpenMatrix }) => {
   if (!scan) {
     return (
       <div className="p-8 rounded-2xl bg-zinc-900/40 border border-zinc-800/60 text-center flex flex-col items-center justify-center min-h-[400px]">
@@ -38,9 +39,21 @@ export const ThreatRadarColumn: React.FC<ThreatRadarColumnProps> = ({ scan, comp
             1. Competitive Surface Radar
           </h2>
         </div>
-        <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-          Target: {scan.targetCompetitor}
-        </span>
+        <div className="flex items-center gap-2">
+          {onOpenMatrix && (
+            <button
+              onClick={onOpenMatrix}
+              className="text-[11px] font-mono px-2.5 py-0.5 rounded bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 flex items-center gap-1.5 transition-colors shadow-sm"
+              title="Open Head-to-Head Battle Matrix"
+            >
+              <Swords className="w-3 h-3" />
+              <span>Battle Matrix</span>
+            </button>
+          )}
+          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+            Target: {scan.targetCompetitor}
+          </span>
+        </div>
       </div>
 
       {/* Dynamic Vulnerability Index Card */}

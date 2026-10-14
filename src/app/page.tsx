@@ -8,8 +8,9 @@ import { ChurnFeedColumn } from "@/components/ChurnFeedColumn";
 import { BattlecardDrawer } from "@/components/BattlecardDrawer";
 import { SettingsModal } from "@/components/SettingsModal";
 import { AgentActivityTerminal } from "@/components/AgentActivityTerminal";
+import { BattleMatrixModal } from "@/components/BattleMatrixModal";
 import { DEMO_PRESETS, DemoPreset } from "@/lib/services/presets";
-import { CompetitorScan, Grievance, Battlecard, SystemStatus } from "@/lib/db/schema";
+import { CompetitorScan, Grievance, Battlecard, SystemStatus, BattleMatrix } from "@/lib/db/schema";
 import { SupportedModel } from "@/lib/services/ai-gateway";
 import { AgentEvent } from "@/lib/services/agent";
 
@@ -19,9 +20,9 @@ export default function Home() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Command bar state
-  const [userProduct, setUserProduct] = useState("Resend");
-  const [competitor, setCompetitor] = useState("SendGrid");
-  const [activePresetId, setActivePresetId] = useState<string>("resend-sendgrid");
+  const [userProduct, setUserProduct] = useState("MongoDB Atlas");
+  const [competitor, setCompetitor] = useState("DynamoDB");
+  const [activePresetId, setActivePresetId] = useState<string>("mongodb-dynamodb");
 
   // Agent execution pipeline state
   const [isLoading, setIsLoading] = useState(false);
@@ -39,6 +40,35 @@ export default function Home() {
   const [lastLatencyMs, setLastLatencyMs] = useState<number | undefined>(undefined);
   const [lastCacheHit, setLastCacheHit] = useState<boolean | undefined>(undefined);
 
+  // Battle matrix modal state
+  const [isMatrixOpen, setIsMatrixOpen] = useState(false);
+  const [battleMatrix, setBattleMatrix] = useState<BattleMatrix | null>(null);
+  const [isLoadingMatrix, setIsLoadingMatrix] = useState(false);
+
+  const handleOpenMatrix = async () => {
+    setIsMatrixOpen(true);
+    setIsLoadingMatrix(true);
+    try {
+      const res = await fetch("/api/matrix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userProduct,
+          competitor,
+          selectedModel,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBattleMatrix(data.matrix);
+      }
+    } catch (err) {
+      console.error("Failed loading battle matrix:", err);
+    } finally {
+      setIsLoadingMatrix(false);
+    }
+  };
+
   // Fetch status on mount
   useEffect(() => {
     fetch("/api/status")
@@ -46,8 +76,12 @@ export default function Home() {
       .then((data) => setStatus(data))
       .catch((err) => console.warn("Failed fetching system status:", err));
 
-    // Initialize with first preset
-    handleLaunchScan("Resend", "SendGrid", DEMO_PRESETS[0].companyProfile.primarySolutions);
+    // Initialize with first preset (MongoDB Atlas vs DynamoDB)
+    handleLaunchScan(
+      DEMO_PRESETS[0].userProduct,
+      DEMO_PRESETS[0].competitor,
+      DEMO_PRESETS[0].companyProfile.primarySolutions
+    );
   }, []);
 
   const handleSelectPreset = (preset: DemoPreset) => {
@@ -223,7 +257,11 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Column 1: Competitive Surface Radar (Defense) */}
           <div className="lg:col-span-5">
-            <ThreatRadarColumn scan={scan} competitorName={competitor} />
+            <ThreatRadarColumn
+              scan={scan}
+              competitorName={competitor}
+              onOpenMatrix={handleOpenMatrix}
+            />
           </div>
 
           {/* Column 2: Live Churn & Grievance Stream (Offense & Strike) */}
@@ -237,6 +275,14 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* Side-by-Side Competitive Battle Matrix Modal */}
+      <BattleMatrixModal
+        isOpen={isMatrixOpen}
+        onClose={() => setIsMatrixOpen(false)}
+        matrix={battleMatrix}
+        isLoading={isLoadingMatrix}
+      />
 
       {/* Conversion Battlecard Drawer (Slide-Over) */}
       <BattlecardDrawer

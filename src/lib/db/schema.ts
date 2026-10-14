@@ -63,7 +63,7 @@ export interface Grievance {
   author: string;
   title: string;
   quote: string;
-  painPointCategory: "PRICING" | "ACCOUNT_SUSPENSION" | "COMPLEXITY" | "SUPPORT_FAILURE" | "API_BREAKAGE" | "VENDOR_LOCKIN";
+  painPointCategory: "PRICING" | "ACCOUNT_SUSPENSION" | "COMPLEXITY" | "SUPPORT_FAILURE" | "API_BREAKAGE" | "VENDOR_LOCKIN" | "DEVELOPER_EXPERIENCE" | "RELIABILITY" | "ARCHITECTURE";
   churnIntent: ChurnIntent;
   sentimentScore: number; // -1.0 to 0.0
   publishedDate: string;
@@ -119,4 +119,21 @@ export interface SystemStatus {
     status: "CONNECTED" | "MOCK_READY";
     apiTier?: string;
   };
+}
+
+export interface MatrixRow {
+  dimension: string;
+  category: "PRICING" | "RELIABILITY" | "DX" | "SUPPORT" | "INFRASTRUCTURE" | "MIGRATION";
+  userProductAdvantage: string;
+  competitorWeakness: string;
+  winner: "USER_PRODUCT" | "COMPETITOR" | "TIE";
+  strikeImpact: "HIGH" | "CRITICAL" | "MODERATE";
+}
+
+export interface BattleMatrix {
+  userProduct: string;
+  competitor: string;
+  overallWinRate: number;
+  recommendedStrikeVector: string;
+  rows: MatrixRow[];
 }
