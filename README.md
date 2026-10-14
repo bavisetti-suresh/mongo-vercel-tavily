@@ -44,6 +44,9 @@ Unlike static pipelines that run sequential API scripts, RadarStrike operates as
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
+### 🎯 Agent Steering via Strategic Directives
+Rather than relying on static or hardcoded queries, users can steer the agent with custom strategic directives (e.g., *"Find developers furious about single-table design and lack of native vector search"* or *"Hunt for users hit by unannounced account bans"*). The Recon Scout agent uses Vercel AI Gateway to autonomously formulate surgical Tavily search queries, targeting developer forums, Hacker News, and Reddit before vectorizing findings into MongoDB Atlas.
+
 ---
 
 ## 🏆 The 10-Second Pitch

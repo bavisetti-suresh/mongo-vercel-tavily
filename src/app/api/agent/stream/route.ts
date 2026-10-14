@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userProduct, competitor, solutions, selectedModel } = await req.json();
+    const { userProduct, competitor, directive, solutions, selectedModel } = await req.json();
 
     if (!userProduct || !competitor) {
       return new Response(
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
         await runAutonomousStrikePipeline({
           userProduct,
           competitor,
+          directive,
           solutions,
           selectedModel,
           onEvent: async (ev) => {

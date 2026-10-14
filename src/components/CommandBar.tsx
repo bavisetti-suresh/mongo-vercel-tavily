@@ -9,6 +9,8 @@ interface CommandBarProps {
   setUserProduct: (val: string) => void;
   competitor: string;
   setCompetitor: (val: string) => void;
+  directive: string;
+  setDirective: (val: string) => void;
   onLaunchScan: () => void;
   isLoading: boolean;
   onSelectPreset: (preset: DemoPreset) => void;
@@ -21,6 +23,8 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   setUserProduct,
   competitor,
   setCompetitor,
+  directive,
+  setDirective,
   onLaunchScan,
   isLoading,
   onSelectPreset,
@@ -130,6 +134,60 @@ export const CommandBar: React.FC<CommandBarProps> = ({
             </button>
           </div>
         </form>
+
+        {/* Strategic Investigation Directive / Custom Prompt Input */}
+        <div className="mt-3.5 pt-3 border-t border-zinc-800/80 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <label className="text-[11px] font-mono uppercase text-amber-400 font-semibold tracking-wider flex items-center gap-1.5 pl-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              Strategic Investigation Directive (Autonomous Prompt)
+            </label>
+            <span className="text-[10px] text-zinc-500 font-mono hidden sm:inline">
+              Agent will autonomously synthesize surgical Tavily queries
+            </span>
+          </div>
+
+          <div className="relative">
+            <input
+              type="text"
+              value={directive}
+              onChange={(e) => setDirective(e.target.value)}
+              placeholder="e.g. Find developers furious about pricing hikes, unannounced account bans, or missing vector search..."
+              className="w-full bg-zinc-950/80 border border-zinc-700/80 rounded-xl px-4 py-2 text-xs font-medium text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all h-[38px]"
+              disabled={isLoading}
+            />
+          </div>
+
+          {/* Quick Directive Suggestions */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span className="text-[10px] font-mono text-zinc-500 mr-1">Quick angles:</span>
+            {[
+              "💸 Pricing hikes & runaway overages",
+              "🛑 Account bans & support ghosting",
+              "⚡ Outages, latency & API breakages",
+              "🧠 Vector search & AI lock-in",
+            ].map((angle, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setDirective(angle.slice(2).trim())}
+                className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-zinc-800/70 hover:bg-zinc-750 text-zinc-300 hover:text-amber-300 border border-zinc-700/60 hover:border-amber-600/50 transition-colors"
+                disabled={isLoading}
+              >
+                {angle}
+              </button>
+            ))}
+            {directive && (
+              <button
+                type="button"
+                onClick={() => setDirective("")}
+                className="text-[10px] font-mono px-1.5 py-0.5 rounded text-zinc-500 hover:text-rose-400 transition-colors ml-auto"
+              >
+                Clear prompt
+              </button>
+            )}
+          </div>
+        </div>
 
         {/* Live Loading Step Progress */}
         {isLoading && loadingStep && (

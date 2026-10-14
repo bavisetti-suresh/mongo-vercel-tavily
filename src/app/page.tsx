@@ -23,6 +23,7 @@ export default function Home() {
   const [userProduct, setUserProduct] = useState("MongoDB Atlas");
   const [competitor, setCompetitor] = useState("DynamoDB");
   const [activePresetId, setActivePresetId] = useState<string>("mongodb-dynamodb");
+  const [directive, setDirective] = useState<string>("");
 
   // Agent execution pipeline state
   const [isLoading, setIsLoading] = useState(false);
@@ -88,13 +89,15 @@ export default function Home() {
     setActivePresetId(preset.id);
     setUserProduct(preset.userProduct);
     setCompetitor(preset.competitor);
-    handleLaunchScan(preset.userProduct, preset.competitor, preset.companyProfile.primarySolutions);
+    setDirective("");
+    handleLaunchScan(preset.userProduct, preset.competitor, preset.companyProfile.primarySolutions, "");
   };
 
   const handleLaunchScan = async (
     targetProduct = userProduct,
     targetCompetitor = competitor,
-    customSolutions?: any[]
+    customSolutions?: any[],
+    targetDirective = directive
   ) => {
     setIsLoading(true);
     setLoadingStep("Deploying Autonomous Multi-Agent Loop...");
@@ -108,6 +111,7 @@ export default function Home() {
         body: JSON.stringify({
           userProduct: targetProduct,
           competitor: targetCompetitor,
+          directive: targetDirective,
           solutions: customSolutions,
           selectedModel,
         }),
@@ -163,6 +167,7 @@ export default function Home() {
         body: JSON.stringify({
           userProduct: targetProduct,
           competitor: targetCompetitor,
+          directive: targetDirective,
           solutions: customSolutions,
           selectedModel,
         }),
@@ -238,6 +243,8 @@ export default function Home() {
           setCompetitor(val);
           setActivePresetId("");
         }}
+        directive={directive}
+        setDirective={setDirective}
         onLaunchScan={() => handleLaunchScan()}
         isLoading={isLoading}
         onSelectPreset={handleSelectPreset}

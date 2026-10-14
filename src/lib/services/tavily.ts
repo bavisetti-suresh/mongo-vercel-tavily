@@ -30,9 +30,13 @@ export interface TavilyScanResult {
 export async function executeTavilyIntelligenceScan({
   userProduct,
   competitor,
+  customReconQuery,
+  customChurnQuery,
 }: {
   userProduct: string;
   competitor: string;
+  customReconQuery?: string;
+  customChurnQuery?: string;
 }): Promise<TavilyScanResult> {
   const client = getTavilyClient();
 
@@ -41,21 +45,21 @@ export async function executeTavilyIntelligenceScan({
     return getFallbackIntelligence(userProduct, competitor);
   }
 
+  const reconQuery = customReconQuery || `${competitor} pricing change changelog deprecation 2025 OR 2026`;
+  const churnQuery = customChurnQuery || `site:reddit.com OR site:news.ycombinator.com "${competitor}" ("migrating" OR "switching to" OR "alternative to" OR "expensive" OR "pricing is crazy" OR "suspended")`;
+
   try {
     // Parallel Tavily searches: 1. Competitor moves/pricing, 2. Churn grievances on Reddit/dev forums
     const [threatsResponse, grievancesResponse] = await Promise.all([
-      client.search(`${competitor} pricing change changelog deprecation 2024 OR 2025`, {
+      client.search(reconQuery, {
         searchDepth: "advanced",
         maxResults: 4,
         topic: "news",
       }),
-      client.search(
-        `site:reddit.com OR site:news.ycombinator.com "${competitor}" ("migrating" OR "switching to" OR "alternative to" OR "expensive" OR "pricing is crazy" OR "suspended")`,
-        {
-          searchDepth: "advanced",
-          maxResults: 5,
-        }
-      ),
+      client.search(churnQuery, {
+        searchDepth: "advanced",
+        maxResults: 5,
+      }),
     ]);
 
     // Parse competitor moves

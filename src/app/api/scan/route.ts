@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
     const {
       userProduct = "Resend",
       competitor = "SendGrid",
+      directive,
       solutions: customSolutions,
       selectedModel = "hybrid",
     } = body;
@@ -54,6 +55,8 @@ export async function POST(req: NextRequest) {
     const scanResult = await executeTavilyIntelligenceScan({
       userProduct,
       competitor,
+      customReconQuery: directive ? `${competitor} ${directive}` : undefined,
+      customChurnQuery: directive ? `site:reddit.com OR site:news.ycombinator.com "${competitor}" ${directive}` : undefined,
     });
 
     // Step 2: Semantic Vector Pairing — match each customer complaint to the best solution

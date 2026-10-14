@@ -1,4 +1,5 @@
 import { executeTavilyIntelligenceScan } from "./tavily";
+import { executeGatewayPrompt } from "./ai-gateway";
 import { matchGrievanceToSolution } from "../db/vector";
 import { getDatabase, getInMemoryStore } from "../db/mongodb";
 import { CompetitorScan, Grievance, SolutionItem } from "../db/schema";
@@ -26,12 +27,14 @@ export type AgentEventCallback = (event: AgentEvent) => Promise<void> | void;
 export async function runAutonomousStrikePipeline({
   userProduct,
   competitor,
+  directive,
   solutions: customSolutions,
   selectedModel = "hybrid",
   onEvent,
 }: {
   userProduct: string;
   competitor: string;
+  directive?: string;
   solutions?: SolutionItem[];
   selectedModel?: any;
   onEvent: AgentEventCallback;
@@ -72,16 +75,67 @@ export async function runAutonomousStrikePipeline({
     `Initializing reconnaissance on target competitor: "${competitor}". Goal: Uncover recent changelogs, pricing tier modifications, and deprecations.`
   );
 
+  let reconQuery = `${competitor} pricing updates changelog news 2025 2026`;
+  let churnQuery = `site:reddit.com OR site:news.ycombinator.com "${competitor}" ("migrating" OR "switching to" OR "alternative to" OR "expensive" OR "pricing is crazy" OR "suspended")`;
+
+  // Autonomous LLM Query Synthesis based on User Directive
+  if (directive && directive.trim()) {
+    await emit(
+      "Recon Scout",
+      "thought",
+      `Received user strategic directive: "${directive.trim()}". Synthesizing surgical search queries via Vercel AI Gateway...`
+    );
+
+    try {
+      const queryPrompt = `You are an expert OSINT and competitive intelligence researcher.
+The user wants to investigate target competitor "${competitor}" from the perspective of "${userProduct}".
+Strategic Directive: "${directive.trim()}".
+
+Formulate TWO highly effective, surgical search queries for Tavily AI Search:
+1. "reconQuery": A query to uncover recent news, changelogs, pricing updates, outages, or architectural moves related to the directive.
+2. "churnQuery": A targeted query targeting Reddit, Hacker News, or developer forums to uncover high-intent customer dissatisfaction related to the directive.
+
+Return ONLY a valid JSON object:
+{
+  "reconQuery": "...",
+  "churnQuery": "..."
+}`;
+
+      const queryRes = await executeGatewayPrompt({
+        prompt: queryPrompt,
+        taskType: "fast",
+        selectedModel: selectedModel as any,
+      });
+
+      if (queryRes.text) {
+        const cleaned = queryRes.text.replace(/```json\n?|\n?```/g, "").trim();
+        const parsed = JSON.parse(cleaned);
+        if (parsed.reconQuery) reconQuery = parsed.reconQuery;
+        if (parsed.churnQuery) churnQuery = parsed.churnQuery;
+
+        await emit(
+          "Recon Scout",
+          "decision",
+          `Autonomous query synthesis complete. Surgical attack queries formulated: [Recon: "${reconQuery}"] | [Churn: "${churnQuery}"]`
+        );
+      }
+    } catch (err) {
+      console.warn("Dynamic query formulation fallback:", err);
+    }
+  }
+
   await emit(
     "Recon Scout",
     "tool_call",
-    `Executing Tavily AI Search Tool: query="${competitor} pricing updates changelog news 2025 2026"`,
-    { tool: "tavily_search", depth: "advanced", topic: "news" }
+    `Executing Tavily AI Search Tool: query="${reconQuery}"`,
+    { tool: "tavily_search", query: reconQuery, depth: "advanced", topic: "news" }
   );
 
   const scanResult = await executeTavilyIntelligenceScan({
     userProduct,
     competitor,
+    customReconQuery: reconQuery,
+    customChurnQuery: churnQuery,
   });
 
   const { moves, stealthEntrants, threatScores, isLiveTavily } = scanResult;
@@ -132,15 +186,14 @@ export async function runAutonomousStrikePipeline({
   await emit(
     "Churn Hunter",
     "thought",
-    `Received vulnerability hypothesis: "${primaryVulnerability}". Formulating autonomous deep-search queries targeting developer forums, Reddit, and Hacker News.`
+    `Deploying Churn Hunter Agent using targeted forum vector: "${churnQuery}". Scanning developer forums, Reddit, and Hacker News.`
   );
 
-  const formulatedQuery = `site:reddit.com "${competitor}" (${primaryVulnerability.split(" ")[0]} OR migrating OR frustrated)`;
   await emit(
     "Churn Hunter",
     "tool_call",
-    `Executing Tavily Social/Forum Search Tool: "${formulatedQuery}"`,
-    { tool: "tavily_search", targetPlatforms: ["reddit", "hackernews", "x"] }
+    `Executing Tavily Social/Forum Search Tool: "${churnQuery}"`,
+    { tool: "tavily_search", query: churnQuery, targetPlatforms: ["reddit", "hackernews", "x"] }
   );
 
   const rawGrievances = scanResult.grievances;
